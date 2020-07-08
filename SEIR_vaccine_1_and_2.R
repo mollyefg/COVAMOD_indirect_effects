@@ -17,9 +17,7 @@ fixedN = 1e7	# total population size
 
 # loop over vaccination rates (per capita per day)
 v = seq(0, .03, .001)
-#vplot = v[round(0.5*length(v))]	# for the snapshot plots - B and C are plotted for a given value of v
-#vplot = v[length(v)]
-vplot = v[21]
+vplot = v[11] # for the snapshot plots - B and C are plotted for a given value of v
 
 
 ###### set up for the plots: 4 panels
@@ -261,11 +259,12 @@ if(vaccineRate == vplot){		# here we plot C and D for a given vaccination rate:
 	newArray[5:6,] = cbind(zeros, zeros, plotArray[1:2,3])
 
 	# and finally, the plot:
+
 	grays = c("black", "black")	# use this for the legend
-	barplot(newArray, ylim = c(0, 1.1*max(newArray)), legend = F, beside = F, cex.names = 1.5,  names.arg = legendnames, main = "",
+	barplot(newArray, ylim = c(0, 1.14*max(newArray)), legend = F, beside = F, cex.names = 1.5,  names.arg = legendnames, main = "",
 		ylab = "total deaths per 100k", col=colors, cex.axis = 1.5, cex.lab = 1.5, density = c(1000, 50))
 	axis(side = 1, line = 2, at = c(1.9), paste("daily per capita vaccination rate of", lambda), cex.axis = 1.5, tick = F)
-	legend(1.75, 1465, legend = c("total effect", "direct effect alone"), cex = 1.5, bty = "n", fill = grays, density =c(1000, 50))
+	legend(1.75, 1555, legend = c("total effect", "direct effect alone"), cex = 1.5, bty = "n", fill = grays, density =c(1000, 50))
 	put.fig.letter(label="C", location="topleft", cex = 2.5, font=2)
 
 	}	# close the 'if' statement
