@@ -1,3 +1,2 @@
 # COVAMOD_models
-SEIR_vaccination_model_direct_effects.R - R script to run the perfect vaccination vs. all-or-nothing (primary vaccine failure) models
-with simple population structure, and functions to calculate the direct vs. indirect effects of vaccination
+SEIR_vaccine_1_and_2.R - R script to run different vaccination scenarios for a single simple SEIR model with one age class. Requires put_fig_letter.R and schematic.jpg, and several packages.
