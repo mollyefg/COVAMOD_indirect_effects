@@ -24,7 +24,7 @@ vplot = v[11] # for the snapshot plots - B and C are plotted for a given value o
 
 cols = viridis(n=3, begin = 0, end = .7)	# 3 colors, one for each vaccine strategy (none, vaccine 1, vaccine 2)
 
-#pdf("4panelresults.pdf", width=11.36, height = 7.5)	# uncomment this to generate the .pdf file
+pdf("4panelresults.pdf", width=11.36, height = 7.5)	# uncomment this to generate the .pdf file
 
 par(mfrow = c(2, 2))
 par(mai = c(0, 0, 0, 0))
@@ -261,11 +261,14 @@ if(vaccineRate == vplot){		# here we plot C and D for a given vaccination rate:
 	# and finally, the plot:
 
 	grays = c("black", "black")	# use this for the legend
-	barplot(newArray, ylim = c(0, 1.14*max(newArray)), legend = F, beside = F, cex.names = 1.5,  names.arg = legendnames, main = "",
+	#par(mai = c(0.9, 1, .01, 0.5))
+
+	barplot(newArray, ylim = c(0, 1.22*max(newArray)), legend = F, beside = F, cex.names = 1.5,  names.arg = legendnames, main = "",
 		ylab = "total deaths per 100k", col=colors, cex.axis = 1.5, cex.lab = 1.5, density = c(1000, 50))
 	axis(side = 1, line = 2, at = c(1.9), paste("daily per capita vaccination rate of", lambda), cex.axis = 1.5, tick = F)
-	legend(1.75, 1555, legend = c("total effect", "direct effect alone"), cex = 1.5, bty = "n", fill = grays, density =c(1000, 50))
+	legend(1.75, 1650, legend = c("total effect", "direct effect alone"), cex = 1.5, bty = "n", fill = grays, density =c(1000, 50))
 	put.fig.letter(label="C", location="topleft", cex = 2.5, font=2)
+	#par(mai = c(0.9, 1, 0.5, 0.5))
 
 	}	# close the 'if' statement
 
@@ -279,7 +282,7 @@ lines(v, storeDeaths[,2,3]/normalize, col = cols[2], type = "l", lwd = 3)
 lines(v,storeDeaths[,3,3]/normalize, col = cols[3], type = "l", lwd = 3)
 put.fig.letter(label="D", location="topleft", cex = 2.5, font=2)
 
-#dev.off()
+dev.off()
 
 ### note that the sum of indirect and direct effects is not equal to the total effect, and this seems to be more pronounced at higher vaccination rates:
 
