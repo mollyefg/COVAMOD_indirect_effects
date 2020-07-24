@@ -15,8 +15,19 @@ require(jpeg)
 
 fixedN = 1e5	# total population size
 
+percentImmune = 0.2	# how many are already immune?
+
+# the relative value of E0, Ic0, and Isc0 matters; don't change them without checking the equations in the supplement
+E0 = 200 
+Ic0 = 140
+Isc0 = 260
+R0 =  percentImmune*fixedN
+M0 = 0
+
+maxV = fixedN - E0 - Ic0 - Isc0 - R0 - M0
+
 # loop over vaccine doses
-v = seq(0, 1e5, 1000)
+v = seq(0, maxV, 100)
 vplot = 40000 # for the snapshot plots - B and C are plotted for a given value of v
 
 ###### set up for the plots: 4 panels
@@ -105,13 +116,12 @@ SEIR<-function(t,y,p){
 ##### Universal values:
 
 nAgeClasses = 1
-sigma = 1/4; gamma = 1/5; beta = 0.5; nu = 0.35
-rhoc = 0.05; 
+sigma = 1/4.6; gamma = 1/5; beta = 0.5; 
+nu = 0.14 # nu = 0.35
+rhoc = 0.02 #0.05; 
 minT = 0; maxT = 365; dt = 1
 
 t = seq(from=minT,to=maxT,by=dt)  # creating the vector of time for output
-
-percentImmune = 0.2	# how many are already immune?
 
 ###### Values for different scenarios:
 
@@ -127,21 +137,18 @@ storeDeaths = array(dim = c(length(v), length(opts), 3))	# array of vaccination 
 percentAverted = array(dim = c(length(v), 4)) # array of % deaths averted by V1 direct, V1 total, V2 direct, and V2 total
 
 ###########################################################################		open the loop over vaccination rates:
+SStore = array(dim = c(length(v), 3))
 
 for(c in 1:length(v)){
 
 doses = v[c] 
 
 Sv0 = doses
-# the relative value of E0, Ic0, and Isc0 matters; don't change them without checking the equations in the supplement
-E0 = 200 
-Ic0 = 140
-Isc0 = 260
-R0 =  percentImmune*fixedN
-M0 = 0
 
 S0_novaccination = fixedN - E0 - Ic0 - Isc0 - R0 - M0
-S0_withvaccination = fixedN - E0 - Ic0 - Isc0 - R0 - M0 - Sv0
+S0_withvaccination = max(0, fixedN - E0 - Ic0 - Isc0 - R0 - M0 - Sv0)
+
+SStore[c,] = c(Sv0, S0_novaccination, S0_withvaccination)
 
 initialConditionsNoV = c(S0_novaccination, 
                       E0,
@@ -229,15 +236,15 @@ if(doses == vplot){		# here we plot C and D for a given vaccination rate:
 	par(mai = c(0.9, 1, 0.25, 1))
 	types = c("dotted", "solid")
 
-	plot(dailyDeath[1,], main ="", cex.main = 1.4, xlab = "day", ylab = "daily deaths per 100k", xlim = c(0,275), cex.axis = 1.5, cex.lab = 1.5, type = "l", lty = types[1], col = cols[1], lwd = 4)
+	plot(dailyDeath[1,], main ="", cex.main = 1.4, xlab = "day", ylab = "daily deaths per 100k", xlim = c(0,300), cex.axis = 1.5, cex.lab = 1.5, type = "l", lty = types[1], col = cols[1], lwd = 4)
 	lines(dailyDeath[2,], type = "l", lty = types[1], col = cols[2], lwd = 4)
 	lines(dailyDeath[3,], type = "l", lty = types[1], col = cols[3], lwd = 4)
 	legendCTitles = c("daily deaths", "total deaths")
-	legend(70, 22, legend = legendnames, title = legendCTitles[1], col = cols, lwd = 2, lty = types[1], cex = 1.2, y.intersp = .75, x.intersp = .5, text.width = 50, bty = "n")
-	legend(175, 22, legend = legendnames, title = legendCTitles[2], col = cols, lwd = 2, lty = types[2], cex = 1.2, y.intersp = .75, x.intersp = .5, text.width = 50, bty = "n")
+	legend(80, 3.45, legend = legendnames, title = legendCTitles[1], col = cols, lwd = 2, lty = types[1], cex = 1.2, y.intersp = .75, x.intersp = .5, text.width = 50, bty = "n")
+	legend(192, 3.45, legend = legendnames, title = legendCTitles[2], col = cols, lwd = 2, lty = types[2], cex = 1.2, y.intersp = .75, x.intersp = .5, text.width = 50, bty = "n")
 
 	par(new=T)	# add a second y-axis to the plot:
-	plot(cumDeath[1,], xlim = c(0,275), xlab = "", ylab = "", xaxt = "null", yaxt = "null", type = "l", lty = types[2], lwd = 3, col = cols[1])
+	plot(cumDeath[1,], xlim = c(0,300), xlab = "", ylab = "", xaxt = "null", yaxt = "null", type = "l", lty = types[2], lwd = 3, col = cols[1])
 	lines(cumDeath[2,],type = "l", lty = types[2], lwd = 3, col = cols[2])
 	lines(cumDeath[3,],type = "l", lty = types[2], lwd = 3, col = cols[3])
 
@@ -266,9 +273,9 @@ if(doses == vplot){		# here we plot C and D for a given vaccination rate:
 }# close the loop over vaccination rates
 
 ## D:
-plot(v/1000, percentAverted[,2], col = cols[2], ylim = c(0, 100), xlab = "percent vaccination coverage", 
+plot(100*v/maxV, percentAverted[,2], col = cols[2], ylim = c(0, 100), xlim = c(0, 100), xlab = "percent vaccination coverage", 
 	ylab = "percent deaths averted", cex.axis = 1.5, cex.lab = 1.5, type = "l", lwd = 3)
-lines(v/1000, percentAverted[,4], col = cols[3], type = "l", lwd = 3)
+lines(100*v/maxV, percentAverted[,4], col = cols[3], type = "l", lwd = 3)
 legend("bottomright", legend = legendnames[2:3], col = cols[2:3], lwd = 3, lty = types[2], cex = 1.5, bty = "n")
 
 put.fig.letter(label="D", location="topleft", cex = 2.5, font=2)
