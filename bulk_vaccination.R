@@ -17,17 +17,19 @@ fixedN = 1e5	# total population size
 
 percentImmune = 0.2	# how many are already immune?
 
-# the relative value of E0, Ic0, and Isc0 matters; don't change them without checking the equations in the supplement
+# the relative value of E0, Ic0, and Isc0 matters; don't change them without re-balancing the equations in the supplement to fit the 'fast dynamics' assumption
 E0 = 200 
 Ic0 = 140
 Isc0 = 260
 R0 =  percentImmune*fixedN
 M0 = 0
 
-maxV = fixedN - E0 - Ic0 - Isc0 - R0 - M0
+maxV = fixedN - E0 - Ic0 - Isc0 - R0 - M0	# max. number of vaccine doses to distribute
 
 # loop over vaccine doses
-v = seq(0, maxV, 100)
+#v = seq(0, maxV, 100)  # fine scale for publication figures
+v = c(0, 10000, 20000, 30000, 40000, 50000, 60000, 70000, maxV)	# coarse scale for quick runs & analysis
+
 vplot = 40000 # for the snapshot plots - B and C are plotted for a given value of v
 
 ###### set up for the plots: 4 panels
@@ -136,8 +138,8 @@ storeDeaths = array(dim = c(length(v), length(opts), 3))	# array of vaccination 
 
 percentAverted = array(dim = c(length(v), 4)) # array of % deaths averted by V1 direct, V1 total, V2 direct, and V2 total
 
-###########################################################################		open the loop over vaccination rates:
-SStore = array(dim = c(length(v), 3))
+
+######################################		open the loop over vaccination rates:
 
 for(c in 1:length(v)){
 
@@ -147,8 +149,6 @@ Sv0 = doses
 
 S0_novaccination = fixedN - E0 - Ic0 - Isc0 - R0 - M0
 S0_withvaccination = max(0, fixedN - E0 - Ic0 - Isc0 - R0 - M0 - Sv0)
-
-SStore[c,] = c(Sv0, S0_novaccination, S0_withvaccination)
 
 initialConditionsNoV = c(S0_novaccination, 
                       E0,
@@ -166,13 +166,14 @@ maxNnoV = sum(initialConditionsNoV)
 maxNV = sum(initialConditionsV)
 maxNV == fixedN	# check to be sure this is true
 maxNnoV == fixedN
-########### simulate the different scenarios:
 
+########### simulate the different scenarios:
 
 ### 0: no vaccination
 betav = beta; nuv = nu
 p = list(N = fixedN, beta, betav, sigma, nu, nuv, gamma, rhoc)		 # creating the LIST of parameter values
 total0 = ode(y=initialConditionsNoV, times=t, func=SEIR, parms=p, method = 'ode45') # run the ode solver
+
 
 ### 1: vaccination reduces clinical infections by a lot, transmission by a little
 betav = factor[1]*beta; nuv = factor[2]*nu
@@ -203,7 +204,6 @@ normalize = fixedN/100000	# normalize values to "per 100k individuals"
 
 deaths = c(total0[end,7], total0[end,7], direct1[end,7], total1[end,7], direct2[end,7], total2[end,7])
 deathArray = matrix(deaths, nrow = 3, ncol = 2, byrow=T)
-
 
 #deathArray: rows = no vaccine, v1, v2; columns = 'direct'(nuv reduced), & total
 # percent deaths averted:
