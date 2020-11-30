@@ -1,7 +1,7 @@
 The files and code associated with our Nature Medicine publication and related medRxiv preprint.
 
-NatureMedPub: (coming soon)
-a .pdf of the published Commentary piece
+NatureMed: 
+a pdf of the published Commentary piece
 
 medRxivPreprint:
 R scripts and files needed to run the simple model described in our preprint (https://doi.org/10.1101/2020.08.07.20170456), along with a .pdf of the document.
